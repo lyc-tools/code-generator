@@ -13,6 +13,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
@@ -36,10 +37,10 @@ public class GenUtils {
         templates.add("template/Service.java.vm");
         templates.add("template/ServiceImpl.java.vm");
         templates.add("template/Controller.java.vm");
-        templates.add("template/menu.sql.vm");
+//        templates.add("template/menu.sql.vm");
 
-        templates.add("template/index.vue.vm");
-        templates.add("template/add-or-update.vue.vm");
+//        templates.add("template/index.vue.vm");
+//        templates.add("template/add-or-update.vue.vm");
 
         return templates;
     }
@@ -60,6 +61,10 @@ public class GenUtils {
         String className = tableToJava(tableEntity.getTableName(), config.getString("tablePrefix" ));
         tableEntity.setClassName(className);
         tableEntity.setClassname(StringUtils.uncapitalize(className));
+
+        //获取写到硬盘的信息
+        boolean writeToDisk = config.getBoolean("writeToDisk", false);
+        String writeToDiskBasePath = File.separator + config.getString("wirteToDiskBasePath","").replace(".", File.separator) + File.separator;
 
         //列信息
         List<ColumnEntity> columsList = new ArrayList<>();
@@ -131,6 +136,9 @@ public class GenUtils {
                 //添加到zip
                 zip.putNextEntry(new ZipEntry(getFileName(template, tableEntity.getClassName(), config.getString("package" ), config.getString("moduleName" ))));
                 IOUtils.write(sw.toString(), zip, "UTF-8" );
+                if(writeToDisk){
+                    writeFileToDisk(sw.toString(), writeToDiskBasePath + getFileName(template, tableEntity.getClassName(), config.getString("package" ), config.getString("moduleName" )));
+                }
                 IOUtils.closeQuietly(sw);
                 zip.closeEntry();
             } catch (IOException e) {
@@ -139,6 +147,19 @@ public class GenUtils {
         }
     }
 
+    public static void writeFileToDisk(String content, String fileName){
+
+        File file = new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
+        try(FileWriter out = new FileWriter(file)){
+            out.write(content);
+            out.flush();
+        }catch (Exception e){
+            System.out.println("写出文件失败");
+        }
+    }
 
     /**
      * 列名转换成Java属性名
@@ -174,7 +195,7 @@ public class GenUtils {
     public static String getFileName(String template, String className, String packageName, String moduleName) {
         String packagePath = "main" + File.separator + "java" + File.separator;
         if (StringUtils.isNotBlank(packageName)) {
-            packagePath += packageName.replace(".", File.separator) + File.separator + moduleName + File.separator;
+            packagePath += packageName.replace(".", File.separator) + File.separator + moduleName.replace(".",File.separator) + File.separator;
         }
 
         if (template.contains("Entity.java.vm" )) {
