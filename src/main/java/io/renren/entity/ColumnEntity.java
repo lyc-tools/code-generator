@@ -23,6 +23,11 @@ public class ColumnEntity {
     private String attrType;
     //auto_increment
     private String extra;
+
+    private boolean notEmpty;
+
+    // get方法名字
+	private String get;
     
 	public String getColumnName() {
 		return columnName;
@@ -65,5 +70,21 @@ public class ColumnEntity {
 	}
 	public void setExtra(String extra) {
 		this.extra = extra;
+	}
+
+	public String getGet() {
+		return get;
+	}
+
+	public void setGet(String get) {
+		this.get = get;
+	}
+
+	public boolean isNotEmpty() {
+		return notEmpty;
+	}
+
+	public void setNotEmpty(boolean notEmpty) {
+		this.notEmpty = notEmpty;
 	}
 }

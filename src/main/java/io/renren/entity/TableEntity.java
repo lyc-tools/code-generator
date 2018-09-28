@@ -23,6 +23,11 @@ public class TableEntity {
 	private String className;
 	//类名(第一个字母小写)，如：sys_user => sysUser
 	private String classname;
+
+	private String allColumns;
+
+	// 所有的属性
+	private String allAttrnames;
 	
 	public String getTableName() {
 		return tableName;
@@ -59,5 +64,21 @@ public class TableEntity {
 	}
 	public void setClassname(String classname) {
 		this.classname = classname;
+	}
+
+	public String getAllColumns() {
+		return allColumns;
+	}
+
+	public void setAllColumns(String allColumns) {
+		this.allColumns = allColumns;
+	}
+
+	public String getAllAttrnames() {
+		return allAttrnames;
+	}
+
+	public void setAllAttrnames(String allAttrnames) {
+		this.allAttrnames = allAttrnames;
 	}
 }

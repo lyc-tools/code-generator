@@ -17,6 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,16 +32,12 @@ public class GenUtils {
 
     public static List<String> getTemplates(){
         List<String> templates = new ArrayList<String>();
-        templates.add("template/Entity.java.vm");
-        templates.add("template/Dao.java.vm");
-        templates.add("template/Dao.xml.vm");
-        templates.add("template/Service.java.vm");
-        templates.add("template/ServiceImpl.java.vm");
-        templates.add("template/Controller.java.vm");
-//        templates.add("template/menu.sql.vm");
-
-//        templates.add("template/index.vue.vm");
-//        templates.add("template/add-or-update.vue.vm");
+        templates.add("template/Bo.java.vm");
+        templates.add("template/Vo.java.vm");
+        templates.add("template/Do.java.vm");
+        templates.add("template/ServiceS.java.vm");
+        templates.add("template/Contro.java.vm");
+        templates.add("template/Mapper.xml.vm");
 
         return templates;
     }
@@ -64,41 +61,22 @@ public class GenUtils {
 
         //获取写到硬盘的信息
         boolean writeToDisk = config.getBoolean("writeToDisk", false);
-        String writeToDiskBasePath = File.separator + config.getString("wirteToDiskBasePath","").replace(".", File.separator) + File.separator;
+        String writeToDiskBasePath = config.getString("wirteToDiskBasePath","").replace(".", File.separator) + File.separator;
 
-        //列信息
-        List<ColumnEntity> columsList = new ArrayList<>();
-        for(Map<String, String> column : columns){
-            ColumnEntity columnEntity = new ColumnEntity();
-            columnEntity.setColumnName(column.get("columnName" ));
-            columnEntity.setDataType(column.get("dataType" ));
-            columnEntity.setComments(column.get("columnComment" ));
-            columnEntity.setExtra(column.get("extra" ));
-
-            //列名转换成Java属性名
-            String attrName = columnToJava(columnEntity.getColumnName());
-            columnEntity.setAttrName(attrName);
-            columnEntity.setAttrname(StringUtils.uncapitalize(attrName));
-
-            //列的数据类型，转换成Java类型
-            String attrType = config.getString(columnEntity.getDataType(), "unknowType" );
-            columnEntity.setAttrType(attrType);
-            if (!hasBigDecimal && attrType.equals("BigDecimal" )) {
-                hasBigDecimal = true;
-            }
-            //是否主键
-            if ("PRI".equalsIgnoreCase(column.get("columnKey" )) && tableEntity.getPk() == null) {
-                tableEntity.setPk(columnEntity);
-            }
-
-            columsList.add(columnEntity);
-        }
+        //获取列信息
+        List<ColumnEntity> columsList = getColumnEntityList(columns);
         tableEntity.setColumns(columsList);
 
-        //没主键，则第一个字段为主键
-        if (tableEntity.getPk() == null) {
-            tableEntity.setPk(tableEntity.getColumns().get(0));
+        // 获取所有的列
+        tableEntity.setAllColumns(columsList.stream().map(ColumnEntity::getColumnName).collect(Collectors.joining(",")));
+
+        // 设置主键,默认用第一个属性
+        if(tableEntity.getPk() == null){
+            tableEntity.setPk(columsList.get(0));
         }
+
+        // 获取所有的属性
+        tableEntity.setAllAttrnames(columsList.stream().map(ColumnEntity::getAttrname).collect(Collectors.joining(",")));
 
         //设置velocity资源加载器
         Properties prop = new Properties();
@@ -110,6 +88,8 @@ public class GenUtils {
         Map<String, Object> map = new HashMap<>();
         map.put("tableName", tableEntity.getTableName());
         map.put("comments", tableEntity.getComments());
+        map.put("allColumns", tableEntity.getAllColumns());
+        map.put("allAttrnames", tableEntity.getAllAttrnames());
         map.put("pk", tableEntity.getPk());
         map.put("className", tableEntity.getClassName());
         map.put("classname", tableEntity.getClassname());
@@ -147,6 +127,43 @@ public class GenUtils {
         }
     }
 
+
+    // 获取column列信息
+    public static List<ColumnEntity> getColumnEntityList( List<Map<String, String>> columns ){
+
+        Configuration config = getConfig();
+        boolean hasBigDecimal = false;
+        List<ColumnEntity> columnsList = new ArrayList<>();
+
+        for(Map<String, String> column : columns){
+            ColumnEntity columnEntity = new ColumnEntity();
+            columnEntity.setColumnName(column.get("columnName" ));
+            columnEntity.setDataType(column.get("dataType" ));
+            columnEntity.setComments(column.get("columnComment" ));
+            columnEntity.setExtra(column.get("extra" ));
+
+            //列名转换成Java属性名
+            String attrName = columnToJava(columnEntity.getColumnName());
+            columnEntity.setAttrName(attrName);
+            columnEntity.setAttrname(StringUtils.uncapitalize(attrName));
+
+            //列的数据类型，转换成Java类型
+            String attrType = config.getString(columnEntity.getDataType(), "unknowType" );
+            columnEntity.setAttrType(attrType);
+
+            if("Boolean".equalsIgnoreCase(attrType)){
+                columnEntity.setGet("is");
+            }else{
+                columnEntity.setGet("get");
+            }
+
+            columnsList.add(columnEntity);
+        }
+
+        return columnsList;
+
+    }
+
     public static void writeFileToDisk(String content, String fileName){
 
         File file = new File(fileName);
@@ -163,6 +180,7 @@ public class GenUtils {
 
     /**
      * 列名转换成Java属性名
+     * 在 _ 后的单词首字母大写,然后去掉 _
      */
     public static String columnToJava(String columnName) {
         return WordUtils.capitalizeFully(columnName, new char[]{'_'}).replace("_", "" );
@@ -170,6 +188,7 @@ public class GenUtils {
 
     /**
      * 表名转换成Java类名
+     * 去掉表前缀。在 _ 后的单词首字母大写,然后去掉 _
      */
     public static String tableToJava(String tableName, String tablePrefix) {
         if (StringUtils.isNotBlank(tablePrefix)) {
@@ -198,42 +217,28 @@ public class GenUtils {
             packagePath += packageName.replace(".", File.separator) + File.separator + moduleName.replace(".",File.separator) + File.separator;
         }
 
-        if (template.contains("Entity.java.vm" )) {
-            return packagePath + "entity" + File.separator + className + "Entity.java";
+        if (template.contains("Contro.java.vm" )) {
+            return packagePath + "controller" + File.separator + className + "C.java";
         }
 
-        if (template.contains("Dao.java.vm" )) {
-            return packagePath + "dao" + File.separator + className + "Dao.java";
+        if (template.contains("ServiceS.java.vm" )) {
+            return packagePath + "service" + File.separator + className + "S.java";
         }
 
-        if (template.contains("Service.java.vm" )) {
-            return packagePath + "service" + File.separator + className + "Service.java";
+        if (template.contains("Bo.java.vm" )) {
+            return packagePath + "model" + File.separator + className + "Bo.java";
         }
 
-        if (template.contains("ServiceImpl.java.vm" )) {
-            return packagePath + "service" + File.separator + "impl" + File.separator + className + "ServiceImpl.java";
+        if (template.contains("Vo.java.vm" )) {
+            return packagePath + "model" + File.separator + className + "Vo.java";
         }
 
-        if (template.contains("Controller.java.vm" )) {
-            return packagePath + "controller" + File.separator + className + "Controller.java";
+        if (template.contains("Do.java.vm" )) {
+            return packagePath + "model" + File.separator + className + "Do.java";
         }
 
-        if (template.contains("Dao.xml.vm" )) {
-            return "main" + File.separator + "resources" + File.separator + "mapper" + File.separator + moduleName + File.separator + className + "Dao.xml";
-        }
-
-        if (template.contains("menu.sql.vm" )) {
-            return className.toLowerCase() + "_menu.sql";
-        }
-
-        if (template.contains("index.vue.vm" )) {
-            return "main" + File.separator + "resources" + File.separator + "src" + File.separator + "views" + File.separator + "modules" +
-                    File.separator + moduleName + File.separator + className.toLowerCase() + ".vue";
-        }
-
-        if (template.contains("add-or-update.vue.vm" )) {
-            return "main" + File.separator + "resources" + File.separator + "src" + File.separator + "views" + File.separator + "modules" +
-                    File.separator + moduleName + File.separator + className.toLowerCase() + "-add-or-update.vue";
+        if (template.contains("Mapper.xml.vm" )) {
+            return packagePath + "map" + File.separator + className + "Mapper.xml";
         }
 
         return null;

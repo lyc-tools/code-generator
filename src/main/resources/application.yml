@@ -6,9 +6,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://rm-m5er7mbaz4avu6lw7vo.mysql.rds.aliyuncs.com:3306/edsb_gateway?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
-    username: qt_syswin
-    password: Syswin123
+    url: jdbc:mysql://30.20.105.4:3306/ordercenter?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
+    username: ordercenter
+    password: 123qweQWE
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="${package}.${moduleName}.model.${className}Do">
+
+    <resultMap id="${classname}Map" type="${package}.${moduleName}.model.${className}Do">
+#foreach($column in $columns)
+        <result property="${column.attrname}" column="${column.columnName}"/>
+#end
+    </resultMap>
+
+    <sql id="${classname}_columns">
+        ${allColumns}
+    </sql>
+
+    <insert id="insert${className}" parameterType="${package}.${moduleName}.model.${className}Do">
+      INSERT INTO $tableName.toUpperCase()
+        (
+#set($columnSize = $columns.size() - 1)
+#set($columnSizeFe = $columnSize - 1)
+#foreach($item in [0..$columnSizeFe])
+          $columns.get($item).columnName,
+#end
+          $columns.get($columnSize).columnName
+        ) values (
+#foreach($item in [0..$columnSizeFe])
+          #{$columns.get($item).attrname},
+#end
+          #{$columns.get($columnSize).attrname}
+        )
+    </insert>
+
+    <update id="update${className}" parameterType="${package}.${moduleName}.model.${className}Do">
+        UPDATE
+          $tableName.toUpperCase()
+        <set>
+          UPDATE_TIME = #{updateTime},
+#foreach($column in $columns)
+#if( ${column.columnName} != ${pk.columnName})
+#if( ${column.columnName} != 'UPDATE_TIME')
+          <if test="${column.attrname}!=null"> ${column.columnName} = #{${column.attrname}}, </if>
+#end
+#end
+#end
+        </set>
+        WHERE
+          ${pk.columnName} = #{${pk.attrname}}
+    </update>
+
+    <select id="sel${className}List" parameterType="${package}.${moduleName}.model.${className}Do" resultMap="${classname}Map">
+        SELECT
+          <include refid="${classname}_columns" />
+        FROM $tableName.toUpperCase()
+        <where>
+            <include refid="${classname}_condition" />
+        </where>
+        ORDER BY UPDATE_TIME DESC
+    </select>
+
+    <select id="get${className}Count" parameterType="${package}.${moduleName}.model.${className}Do" resultType="java.lang.Long">
+        SELECT
+          count(1)
+        FROM $tableName.toUpperCase()
+        <where>
+            <include refid="${classname}_condition" />
+        </where>
+    </select>
+
+    <sql id="${classname}_condition">
+        AND DELETED = 0
+#foreach($column in $columns)
+        <if test="${column.attrname}!=null">
+            AND ${column.columnName} = #{${column.attrname}}
+        </if>
+#end
+    </sql>
+
+</mapper>

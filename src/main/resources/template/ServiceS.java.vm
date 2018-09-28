@@ -1,0 +1,111 @@
+package ${package}.${moduleName}.service;
+
+import ${package}.util.ToolUtils;
+import ${package}.constant.OsgConstant;
+import ${package}.${moduleName}.model.${className}Do;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.sgcc.tools.base.BaseService;
+import java.sql.Timestamp;
+import java.util.List;
+
+/**
+ * ${comments}
+ *
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+@Service
+public class ${className}S extends BaseService<${className}Do> {
+
+    private static Logger log = LoggerFactory.getLogger(${className}S.class);
+    /** 删除标识 **/
+    private static Integer DELETED = 1;
+    /** 未删除标识 **/
+    private static Integer UNDELETED = 0;
+
+    // TODO 主键生成工具类
+    @Autowired
+    private SerialIdS serialIds;
+
+    /**
+    * 增加${comments}
+    * @param ${classname}Do 入参
+    */
+    public void create${className}(${className}Do ${classname}Do) {
+        /** 赋予id值 **/
+        // TODO 赋予id值
+        // eg: ${classname}Do.set${pk.attrName}(serialIds.generateIncNo(OsgConstant.OC_BIZ_$tableName.toUpperCase()));
+        /** 删除标识 **/
+        ${classname}Do.setDeleted(UNDELETED);
+        /** 创建时间 **/
+        ${classname}Do.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        /** 更新时间 **/
+        ${classname}Do.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        mybatisDao.insert("insert${className}", ${classname}Do);
+    }
+
+    /**
+     * 修改${comments}
+     * @param ${classname}Do 入参
+     */
+    public void update${className}(${className}Do ${classname}Do) {
+        /** 更新时间 **/
+        ${classname}Do.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        mybatisDao.update("update${className}", ${classname}Do);
+    }
+
+    /**
+     * 删除${comments}
+     * @param ${classname}Do 入参
+     */
+    public void delete${className}(${className}Do ${classname}Do) {
+        ${className}Do delete = new ${className}Do();
+        /** 赋予id值 **/
+        delete.set${pk.attrName}(${classname}Do.get${pk.attrName}());
+        /** 更新时间 **/
+        delete.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        /** 更新删除标识 **/
+        delete.setDeleted(DELETED);
+        mybatisDao.update("update${className}", delete);
+    }
+
+    /**
+     * 批量查询${comments}
+     * @param ${classname}Do 入参，查询条件
+     */
+    public List<${className}Do> query${className}List(${className}Do ${classname}Do) {
+        return mybatisDao.queryForList("sel${className}List", ${classname}Do);
+    }
+
+    /**
+     * 单个查询${comments}，可能查出多条，只取第一条
+     * @param ${classname}Do 入参，查询条件
+     */
+    public ${className}Do queryOne${className}(${className}Do ${classname}Do) {
+        List<${className}Do> results = query${className}List(${classname}Do);
+        return (ToolUtils.isEmpty(results)) ? null : results.get(0);
+    }
+
+    /**
+     * 分页查询${comments}
+     * @param ${classname}Do 入参，查询条件
+     * @param iDisplayStart 入参，分页，起始行
+     * @param iDisplayLength 入参，分页，每页数量
+     */
+    public List<${className}Do> query${className}ForPage(${className}Do ${classname}Do, int iDisplayStart, int iDisplayLength) {
+        return mybatisDao.queryForList("sel${className}List", ${classname}Do, iDisplayStart, iDisplayLength);
+    }
+
+    /**
+     * 统计${comments}数量
+     * @param ${classname}Do 入参，查询条件
+     */
+    public Long count${className}List(${className}Do ${classname}Do) {
+        return (Long) mybatisDao.queryForObject("get${className}Count", ${classname}Do);
+    }
+
+}

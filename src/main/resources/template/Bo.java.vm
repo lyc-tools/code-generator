@@ -1,0 +1,63 @@
+package ${package}.${moduleName}.model;
+
+#if(${hasBigDecimal})
+import java.math.BigDecimal;
+#end
+import java.io.Serializable;
+import java.sql.Timestamp;
+
+/**
+ * ${comments}
+ * 
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+public class ${className}Bo implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+#foreach ($column in $columns)
+	/**
+	 * $column.comments
+	 */
+    private $column.attrType $column.attrname;
+#end
+#foreach ($column in $columns)
+#if ($column.attrType == "Timestamp")
+    /**
+     * 设置：${column.comments}
+     */
+    public void set${column.attrName}(${column.attrType} ${column.attrname}) {
+        if ($column.attrname == null)
+        {
+            this.${column.attrname} = null;
+        } else {
+            this.${column.attrname} = (Timestamp)${column.attrname}.clone();
+        }
+    }
+    /**
+     * 获取：${column.comments}
+     */
+    public $column.attrType ${column.get}${column.attrName}() {
+        if (${column.attrname} == null)
+        {
+            return null;
+        }
+        return (Timestamp)${column.attrname}.clone();
+    }
+#else
+    /**
+     * 设置：${column.comments}
+     */
+    public void set${column.attrName}($column.attrType $column.attrname) {
+        this.$column.attrname = $column.attrname;
+    }
+    /**
+     * 获取：${column.comments}
+     */
+    public $column.attrType ${column.get}${column.attrName}() {
+        return $column.attrname;
+    }
+#end
+#end
+}
