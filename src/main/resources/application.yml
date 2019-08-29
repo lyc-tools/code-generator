@@ -1,14 +1,31 @@
 server:
   port: 9001
 
+data:
+  dialect: oracle
+
 # mysql
+#spring:
+#  datasource:
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    driverClassName: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://192.168.99.100:32769/dev?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
+#    username: root
+#    password: root
+#  jackson:
+#    time-zone: GMT+8
+#    date-format: yyyy-MM-dd HH:mm:ss
+#  resources:
+#    static-locations: classpath:/static/,classpath:/views/
+
+# oracle
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://30.20.105.4:3306/ordercenter?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8
-    username: ordercenter
-    password: 123qweQWE
+    driverClassName: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@30.20.109.97:11521:webdb
+    username: osgopenpf
+    password: osgopenpf
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss

@@ -1,14 +1,17 @@
 package io.renren.service;
 
-import io.renren.dao.SysGeneratorDao;
+import io.renren.dao.SysGeneratorDaoMysql;
+import io.renren.dao.SysGeneratorDaoOra;
 import io.renren.utils.GenUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -21,22 +24,26 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class SysGeneratorService {
 	@Autowired
-	private SysGeneratorDao sysGeneratorDao;
+	private SysGeneratorDaoMysql sysGeneratorDaoMysql;
+	@Autowired
+	private SysGeneratorDaoOra sysGeneratorDaoOra;
+	@Value("${data.dialect}")
+	private String dialect;
 
 	public List<Map<String, Object>> queryList(Map<String, Object> map) {
-		return sysGeneratorDao.queryList(map);
+		return isOracle() ? sysGeneratorDaoOra.queryList(map) : sysGeneratorDaoMysql.queryList(map);
 	}
 
 	public int queryTotal(Map<String, Object> map) {
-		return sysGeneratorDao.queryTotal(map);
+		return isOracle() ? sysGeneratorDaoOra.queryTotal(map) : sysGeneratorDaoMysql.queryTotal(map);
 	}
 
 	public Map<String, String> queryTable(String tableName) {
-		return sysGeneratorDao.queryTable(tableName);
+		return isOracle() ? sysGeneratorDaoOra.queryTable(tableName) : sysGeneratorDaoMysql.queryTable(tableName);
 	}
 
 	public List<Map<String, String>> queryColumns(String tableName) {
-		return sysGeneratorDao.queryColumns(tableName);
+		return isOracle() ? sysGeneratorDaoOra.queryColumns(tableName) : sysGeneratorDaoMysql.queryColumns(tableName);
 	}
 
 	public byte[] generatorCode(String[] tableNames) {
@@ -53,5 +60,11 @@ public class SysGeneratorService {
 		}
 		IOUtils.closeQuietly(zip);
 		return outputStream.toByteArray();
+	}
+
+	public boolean isOracle(){
+		return "oracle".equalsIgnoreCase(dialect);
+
+
 	}
 }

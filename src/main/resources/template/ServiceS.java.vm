@@ -1,12 +1,10 @@
 package ${package}.${moduleName}.service;
 
-import ${package}.util.ToolUtils;
-import ${package}.constant.OsgConstant;
+import ${package}.utils.ToolUtils;
 import ${package}.${moduleName}.model.${className}Do;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.sgcc.tools.base.BaseService;
 import java.sql.Timestamp;
 import java.util.List;
@@ -27,10 +25,6 @@ public class ${className}S extends BaseService<${className}Do> {
     /** 未删除标识 **/
     private static Integer UNDELETED = 0;
 
-    // TODO 主键生成工具类
-    @Autowired
-    private SerialIdS serialIds;
-
     /**
     * 增加${comments}
     * @param ${classname}Do 入参
@@ -38,9 +32,9 @@ public class ${className}S extends BaseService<${className}Do> {
     public void create${className}(${className}Do ${classname}Do) {
         /** 赋予id值 **/
         // TODO 赋予id值
-        // eg: ${classname}Do.set${pk.attrName}(serialIds.generateIncNo(OsgConstant.OC_BIZ_$tableName.toUpperCase()));
+        // eg: ${classname}Do.set${pk.attrName}(UUID.randomUUID().toString().replace("-",""));
         /** 删除标识 **/
-        ${classname}Do.setDeleted(UNDELETED);
+        //${classname}Do.setDeleted(UNDELETED);
         /** 创建时间 **/
         ${classname}Do.setCreateTime(new Timestamp(System.currentTimeMillis()));
         /** 更新时间 **/
@@ -69,7 +63,7 @@ public class ${className}S extends BaseService<${className}Do> {
         /** 更新时间 **/
         delete.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         /** 更新删除标识 **/
-        delete.setDeleted(DELETED);
+        //delete.setDeleted(DELETED);
         mybatisDao.update("update${className}", delete);
     }
 

@@ -4,18 +4,16 @@ import ${package}.${moduleName}.service.${className}S;
 import ${package}.${moduleName}.model.${className}Bo;
 import ${package}.${moduleName}.model.${className}Do;
 import ${package}.${moduleName}.model.${className}Vo;
-import com.sgcc.util.JSONUtils;
+import com.sgcc.utils.JSONUtils;
 import com.sgcc.tools.base.BaseController;
 import com.sgcc.tools.exception.BusinessException;
 import com.sgcc.tools.string.CodeConstant;
 import com.sgcc.tools.utils.BeanCopyUtils;
-import com.sgcc.util.DateUtils;
-import com.sgcc.util.BeanUtil;
+import com.sgcc.utils.BeanUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -30,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @date ${datetime}
  */
 @RefreshScope
-@Controller
+@RestController
 // TODO 需要修改访问路径
 @RequestMapping("${moduleName}/${pathName}")
 public class ${className}C extends BaseController {
@@ -50,14 +48,10 @@ public class ${className}C extends BaseController {
     * 增加${comments}
     */
     @RequestMapping(value = "/f01",method=RequestMethod.POST)
-    @ResponseBody
     @ApiOperation(value = "增加${comments}", notes = "")
     @ApiParam(required = true, name = "${classname}Bo", value = "增加${comments}")
     public void add${className}(@RequestBody ${className}Bo ${classname}Bo){
         log.info("增加${comments},入参：{}", JSONUtils.toJSONString(${classname}Bo));
-        if(null == ${classname}Bo){
-            throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数为空！", false);
-        }
         // TODO 做具体参数的校验
         // eg： BeanUtil.checkBeanPropertyNotNull(${classname}Bo, "${pk.attrname}")
         BeanUtil.checkBeanPropertyNotNull(${classname}Bo, "$allAttrnames.replace(',','","')");
@@ -65,21 +59,17 @@ public class ${className}C extends BaseController {
         ${className}Do ${classname}Do = new ${className}Do();
         BeanCopyUtils.copy(${classname}Bo, ${classname}Do);
         ${classname}S.create${className}(${classname}Do);
-        this.renderJson4Model(new Object());
+        this.renderJson4Model(${classname}Do.get${pk.attrName}());
     }
 
     /**
      * 修改${comments}
      */
     @RequestMapping(value = "/f02",method=RequestMethod.POST)
-    @ResponseBody
     @ApiOperation(value = "修改${comments}", notes = "")
     @ApiParam(required = true, name = "${classname}Bo", value = "修改${comments}")
     public void update${className}(@RequestBody ${className}Bo ${classname}Bo){
         log.info("修改${comments},入参：{}", JSONUtils.toJSONString(${classname}Bo));
-        if(null == ${classname}Bo){
-            throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数为空！", false);
-        }
         if(null == ${classname}Bo.get${pk.attrName}()){
             throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数${pk.attrname}不能为空！", false);
         }
@@ -96,14 +86,10 @@ public class ${className}C extends BaseController {
      * 删除${comments}
      */
     @RequestMapping(value = "/f03",method=RequestMethod.POST)
-    @ResponseBody
     @ApiOperation(value = "修改${comments}", notes = "")
     @ApiParam(required = true, name = "${classname}Bo", value = "修改${comments}")
     public void delete${className}(@RequestBody ${className}Bo ${classname}Bo){
         log.info("删除${comments},入参：{}", JSONUtils.toJSONString(${classname}Bo));
-        if(null == ${classname}Bo){
-            throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数为空！", false);
-        }
         if(null == ${classname}Bo.get${pk.attrName}()){
             throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数${pk.attrname}不能为空！", false);
         }
@@ -120,14 +106,10 @@ public class ${className}C extends BaseController {
      * 单个查询${comments},如果有多个查询结果，返回第一个
      */
     @RequestMapping(value = "/f04",method=RequestMethod.POST)
-    @ResponseBody
     @ApiOperation(value = "单个查询${comments},如果查询到多个，返回第一个", notes = "")
     @ApiParam(required = true, name = "${classname}Bo", value = "单个查询${comments}")
     public void get${className}(@RequestBody ${className}Bo ${classname}Bo){
         log.info("单个查询${comments},入参：{}", JSONUtils.toJSONString(${classname}Bo));
-        if(null == ${classname}Bo){
-            throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数为空！", false);
-        }
         // TODO 做具体参数的校验
         // eg： BeanUtil.checkBeanPropertyNotNull(${classname}Bo, "${pk.attrname}")
         /** 复制 Bo to Do **/
@@ -145,14 +127,10 @@ public class ${className}C extends BaseController {
      * 分页查询${comments}
      */
     @RequestMapping(value = "/f05",method=RequestMethod.POST)
-    @ResponseBody
     @ApiOperation(value = "分页查询${comments}", notes = "")
     @ApiParam(required = true, name = "${classname}Bo", value = "分页查询${comments}")
     public void query${className}ForPage(@RequestBody ${className}Bo ${classname}Bo){
         log.info("分页查询${comments},入参：{}", JSONUtils.toJSONString(${classname}Bo));
-        if(null == ${classname}Bo){
-            throw new BusinessException(CodeConstant.REQUEST_ERROR_PARAMS_CODE, "请求参数为空！", false);
-        }
         // TODO 做具体参数的校验
         // eg： BeanUtil.checkBeanPropertyNotNull(${classname}Bo, "${pk.attrname}")
         /** 复制 Bo to Do **/

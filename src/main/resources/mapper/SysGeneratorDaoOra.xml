@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.dao.SysGeneratorDaoOra">
+	<select id="queryList" resultType="map">
+		select "tableName", "engine", "createTime", "tableComment" from (select rownum r, tmp.* from (
+		select ut.TABLE_NAME "tableName", '' "engine", utc.COMMENTS "tableComment", ut.last_analyzed "createTime"
+			from USER_TABLES ut, USER_TAB_COMMENTS utc where ut.TABLE_NAME = utc.TABLE_NAME
+		<if test="tableName != null and tableName.trim() != ''">
+			and ut.table_name like concat('%', #{tableName}, '%')
+		</if>
+		order by  ut.last_analyzed desc ) tmp ) t
+		<if test="offset != null and limit != null">
+			where r >= #{offset} and (#{offset} + #{limit}) > r
+		</if>
+	</select>
+	
+	<select id="queryTotal" resultType="int">
+		select count(*) from  USER_TABLES ut, USER_TAB_COMMENTS utc where ut.TABLE_NAME = utc.TABLE_NAME
+		<if test="tableName != null and tableName.trim() != ''">
+			and ut.table_name like concat('%', #{tableName}, '%')
+		</if> 
+	</select> 
+	
+	<select id="queryTable" resultType="map">
+		select ut.TABLE_NAME "tableName", '' "engine", utc.COMMENTS "tableComment", ut.last_analyzed "createTime"
+			from USER_TABLES ut, USER_TAB_COMMENTS utc where ut.TABLE_NAME = utc.TABLE_NAME
+			and ut.TABLE_NAME =  #{tableName}
+	</select> 
+	
+	<select id="queryColumns" resultType="map">
+ 	select utc.COLUMN_NAME "columnName", utc.data_type "dataType", ucc.COMMENTS "columnComment", '' "extra",
+       (select case index_name when null then '' else 'PRI' END from USER_IND_COLUMNS where TABLE_NAME = UTC.TABLE_NAME AND COLUMN_NAME = utc.COLUMN_NAME ) "columnKey"
+       from USER_TAB_COLUMNS utc,  USER_COL_COMMENTS ucc where
+		utc.TABLE_NAME = ucc.TABLE_NAME and utc.COLUMN_NAME = ucc.COLUMN_NAME
+		and utc.table_name =  #{tableName} order by utc.COLUMN_ID
+	</select>
+</mapper>
