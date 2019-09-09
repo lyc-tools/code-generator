@@ -67,7 +67,7 @@
     </select>
 
     <sql id="${classname}_condition">
-        AND DELETED = 0
+        AND DELETE_FLAG = 0
 #foreach($column in $columns)
         <if test="${column.attrname}!=null">
             AND ${column.columnName} = #{${column.attrname}}

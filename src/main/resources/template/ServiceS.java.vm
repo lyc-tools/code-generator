@@ -21,9 +21,9 @@ public class ${className}S extends BaseService<${className}Do> {
 
     private static Logger log = LoggerFactory.getLogger(${className}S.class);
     /** 删除标识 **/
-    private static Integer DELETED = 1;
+    private static String DELETED = "1";
     /** 未删除标识 **/
-    private static Integer UNDELETED = 0;
+    private static String UNDELETED = "0";
 
     /**
     * 增加${comments}
@@ -32,9 +32,9 @@ public class ${className}S extends BaseService<${className}Do> {
     public void create${className}(${className}Do ${classname}Do) {
         /** 赋予id值 **/
         // TODO 赋予id值
-        // eg: ${classname}Do.set${pk.attrName}(UUID.randomUUID().toString().replace("-",""));
+        //${classname}Do.set${pk.attrName}(UUID.randomUUID().toString().replace("-",""));
         /** 删除标识 **/
-        //${classname}Do.setDeleted(UNDELETED);
+        //${classname}Do.setDeleteFlag(UNDELETED);
         /** 创建时间 **/
         ${classname}Do.setCreateTime(new Timestamp(System.currentTimeMillis()));
         /** 更新时间 **/

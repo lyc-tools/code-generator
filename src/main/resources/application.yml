@@ -19,11 +19,23 @@ data:
 #    static-locations: classpath:/static/,classpath:/views/
 
 # oracle
+#spring:
+#  datasource:
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    driverClassName: sgcc.nds.jdbc.driver.NdsDriver
+#    url: jdbc:nds://30.20.110.57:18700,30.20.110.98:18700/v_18700_osgopenpf_kf?appname=App_osgopenpf_kf
+#    username: osgopenpf
+#    password: osgopenpf
+#  jackson:
+#    time-zone: GMT+8
+#    date-format: yyyy-MM-dd HH:mm:ss
+#  resources:
+#    static-locations: classpath:/static/,classpath:/views/
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@30.20.109.97:11521:webdb
+    url: jdbc:oracle:thin:@30.20.109.97:11521/webdb
     username: osgopenpf
     password: osgopenpf
   jackson:
